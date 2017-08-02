@@ -1,0 +1,15 @@
+{
+  "name": "rn-countdown",
+  "version": "0.0.1",
+  "description": "A smart countdown component for react-native apps. You may use it to handle different status when request a verification code.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ljunb/rn-countdown.git"
+  },
+  "author": "CookieJ",
+  "license": "MIT"
+}
