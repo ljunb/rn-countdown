@@ -5,6 +5,9 @@
 
 A smart countdown component for react-native apps. You may use it to handle different status when request a verification code.
 
+## Preview
+![demo](https://github.com/ljunb/screenshots/blob/master/rn-countdown.gif)
+
 ## Install
 
 Install with npm:
@@ -107,11 +110,16 @@ const styles = StyleSheet.create({
 
 ## Props
 
-Prop              | Type   | Optional | Default   | Description
-----------------  | ------ | -------- | --------- | -----------
-title             | string | Yes      | 获取短信验证码 | 
+Prop              | Type   | Optional | Default      | Description
+----------------  | ------ | -------- | -----------  | -----------
+title             | string | Yes      | 获取短信验证码  | 
 time              | number | Yes      | 30s          | 
-countingSuffixTitle | string | Yes      | s后重新获取 | the suffix title when counting down
-overTitle         | string | Yes      | 重新获取      | the title when countdown over
+countingSuffixTitle | string | Yes    | s后重新获取    | the suffix title when counting down
+overTitle         | string | Yes      | 重新获取       | the title when countdown over
 titleStyle        | object | Yes      |              | font style of countdown title
-shouldHandleBeforeCountdown | function | Yes      | true      | before start countdown, you can use this function to handle some business logic, return true to allow countdown, otherwise return false
+shouldHandleBeforeCountdown | function | Yes         | true      | before start countdown, you can use this function to handle some business logic, return true to allow countdown, otherwise return false
+
+## Methods
+Method            | Description
+----------------  | -----------
+stopCountdown     | stop countdown anytime you want, such as fetch failed or other situations
