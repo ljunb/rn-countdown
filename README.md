@@ -1,6 +1,7 @@
 # rn-countdown
 
 [![npm](https://img.shields.io/npm/v/rn-countdown.svg)](https://www.npmjs.com/package/rn-countdown)
+[![npm](https://img.shields.io/npm/dm/rn-countdown.svg)](https://www.npmjs.com/package/rn-countdown)
 [![npm](https://img.shields.io/npm/l/rn-countdown.svg)](https://github.com/ljunb/rn-countdown/blob/master/LICENSE)
 
 A smart countdown component for react-native apps. You may use it to handle different status when request a verification code.
@@ -117,9 +118,9 @@ time              | number | Yes      | 30s          |
 countingSuffixTitle | string | Yes    | s后重新获取    | the suffix title when counting down
 overTitle         | string | Yes      | 重新获取       | the title when countdown over
 titleStyle        | object | Yes      |              | font style of countdown title
-shouldHandleBeforeCountdown | function | Yes         | true      | before start countdown, you can use this function to handle some business logic, return true to allow countdown, otherwise return false
+shouldHandleBeforeCountdown | function | Yes         | return true      | before start countdown, you can use this function to handle some business logic, return true to allow countdown, otherwise return false
 
 ## Methods
 Method            | Description
 ----------------  | -----------
-stopCountdown     | stop countdown anytime you want, such as fetch failed or other situations
+stopCountdown     | stop countdown anytime you want, such as network failed or other situations

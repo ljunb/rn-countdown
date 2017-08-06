@@ -1,5 +1,6 @@
 /*
- * A smart countdown component for react-native apps. You may use it to handle different status when request a verification code.
+ * A smart countdown component for react-native apps.
+ * You may use it to handle different status when request a verification code.
  * https://github.com/ljunb/react-native-countdown/
  * Released under the MIT license
  * Copyright (c) 2017 ljunb <cookiejlim@gmail.com>
@@ -74,11 +75,11 @@ export default class Countdown extends Component {
 
     handlePress = () => {
         const {shouldHandleBeforeCountdown} = this.props;
-        const {status} = this.state;
 
         const canStartTimer = shouldHandleBeforeCountdown();
-        if (status === CountdownStatus.Counting || !canStartTimer) return;
-        this.setState({status: CountdownStatus.Counting}, this.startTimer);
+        if (canStartTimer) {
+            this.setState({status: CountdownStatus.Counting}, this.startTimer);
+        }
     };
 
     startTimer = () => {
