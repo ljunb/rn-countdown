@@ -1,6 +1,5 @@
 /*
- * A smart countdown component for react-native apps.
- * You may use it to handle different status when request a verification code.
+ * A smart countdown component for react-native apps. You may use it to handle different status when request a verification code.
  * https://github.com/ljunb/react-native-countdown/
  * Released under the MIT license
  * Copyright (c) 2017 ljunb <cookiejlim@gmail.com>
@@ -31,16 +30,18 @@ export default class Countdown extends Component {
         style: ViewPropTypes.style,
         title: PropTypes.string,
         time: PropTypes.number,
-        countingSuffixTitle: PropTypes.string,
         overTitle: PropTypes.string,
-        titleStyle: PropTypes.object,
+        titleStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
+        countingStyle: ViewPropTypes.style,
+        countingTitleTemplate: PropTypes.string,
+        countingTitleStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
         shouldHandleBeforeCountdown: PropTypes.func
     };
 
     static defaultProps = {
         title: '获取短信验证码',
         time: 30,
-        countingSuffixTitle: 's后重新获取',
+        countingTitleTemplate: '{time}s后重新获取',
         overTitle: '重新获取',
         shouldHandleBeforeCountdown: () => true
     };
@@ -54,10 +55,10 @@ export default class Countdown extends Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        const {time, title, overTitle, countingSuffixTitle} = this.props;
+        const {time, title, overTitle, countingTitleTemplate} = this.props;
         const {second, status} = this.state;
 
-        const isNewComp = nextProps.title !== title || nextProps.time !== time || nextProps.overTitle !== overTitle || nextProps.countingSuffixTitle !== countingSuffixTitle;
+        const isNewComp = nextProps.title !== title || nextProps.time !== time || nextProps.overTitle !== overTitle || nextProps.countingTitleTemplate !== countingTitleTemplate;
         const isCounting = nextState.second !== second || nextState.status !== status;
         return isNewComp || isCounting;
     }
@@ -74,12 +75,15 @@ export default class Countdown extends Component {
     };
 
     handlePress = () => {
-        const {shouldHandleBeforeCountdown} = this.props;
+        const {shouldHandleBeforeCountdown, countingTitleTemplate} = this.props;
+        const {status} = this.state;
 
         const canStartTimer = shouldHandleBeforeCountdown();
-        if (canStartTimer) {
-            this.setState({status: CountdownStatus.Counting}, this.startTimer);
+        if (status === CountdownStatus.Counting || !canStartTimer) return;
+        if (countingTitleTemplate.indexOf('{time}') === -1) {
+            console.warn('[rn-countdown] The countingTitleTemplate string must conform to the format that contain `{time}`!');
         }
+        this.setState({status: CountdownStatus.Counting}, this.startTimer);
     };
 
     startTimer = () => {
@@ -100,10 +104,19 @@ export default class Countdown extends Component {
 
     render() {
         const {status, second} = this.state;
-        const {title, style, overTitle, countingSuffixTitle, titleStyle} = this.props;
-        let promptTitle = title;
+        const {
+            title, style, overTitle, titleStyle,
+            countingTitleTemplate, countingStyle, countingTitleStyle
+        } = this.props;
+
+        let promptTitle = title,
+            containerStyle = [styles.container, style],
+            textStyle = [styles.title, titleStyle];
+
         if (status === CountdownStatus.Counting) {
-            promptTitle = `${second}${countingSuffixTitle}`;
+            promptTitle = countingTitleTemplate.replace('{time}', second);
+            containerStyle.push(countingStyle);
+            textStyle.push(countingTitleStyle);
         } else if (status === CountdownStatus.Over) {
             promptTitle = overTitle;
         }
@@ -112,10 +125,10 @@ export default class Countdown extends Component {
             <TouchableOpacity
                 disabled={status === CountdownStatus.Counting}
                 activeOpacity={0.75}
-                style={[styles.container, style]}
+                style={containerStyle}
                 onPress={this.handlePress}
             >
-                <Text style={[styles.title, titleStyle]}>{promptTitle}</Text>
+                <Text style={textStyle}>{promptTitle}</Text>
             </TouchableOpacity>
         )
     }

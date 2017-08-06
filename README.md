@@ -4,7 +4,7 @@
 [![npm](https://img.shields.io/npm/dm/rn-countdown.svg)](https://www.npmjs.com/package/rn-countdown)
 [![npm](https://img.shields.io/npm/l/rn-countdown.svg)](https://github.com/ljunb/rn-countdown/blob/master/LICENSE)
 
-A smart countdown component for react-native apps. You may use it to handle different status when request a verification code.
+A smart countdown component for react-native apps. You may use it to handle different status when request a verification code. Supports custom styles in the countdown different status.
 
 ## Preview
 ![demo](https://github.com/ljunb/screenshots/blob/master/rn-countdown.gif)
@@ -25,7 +25,6 @@ yarn add rn-countdown
 ```js
 import React, {Component} from 'react';
 import {
-    AppRegistry,
     StyleSheet,
     View,
     Button,
@@ -66,8 +65,13 @@ export default class RNCountdownDemo extends Component {
                     <CountdownView
                         ref={r => this.countdown = r}
                         time={10}
-                        overTitle="重置"
-                        countingSuffixTitle="s"
+                        title="发送验证码"
+                        overTitle="重新发送"
+                        style={styles.countdown}
+                        titleStyle={styles.countdownTitle}
+                        countingTitleTemplate="发送中({time})"
+                        countingStyle={styles.countingdown}
+                        countingTitleStyle={styles.countingTitle}
                         shouldHandleBeforeCountdown={this.shouldHandleBeforeCountdown}
                     />
                 </View>
@@ -105,7 +109,18 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         padding: 0,
         fontSize: 14
-    }
+    },
+    countdown: {
+        backgroundColor: 'rgb(59, 197, 81)',
+        borderRadius: 15,
+        borderWidth: 0
+    },
+    countingdown: {
+        backgroundColor: 'transparent',
+        borderWidth: StyleSheet.hairlineWidth
+    },
+    countdownTitle: {color: '#fff'},
+    countingTitle: {color: '#ccc'}
 });
 ```
 
@@ -113,11 +128,14 @@ const styles = StyleSheet.create({
 
 Prop              | Type   | Optional | Default      | Description
 ----------------  | ------ | -------- | -----------  | -----------
-title             | string | Yes      | 获取短信验证码  | 
-time              | number | Yes      | 30s          | 
-countingSuffixTitle | string | Yes    | s后重新获取    | the suffix title when counting down
+style             | ViewPropTypes | Yes      | none  | custom container style
+title             | string | Yes      | 获取短信验证码  | initial title 
+time              | number | Yes      | 30s          | timer seconds
 overTitle         | string | Yes      | 重新获取       | the title when countdown over
-titleStyle        | object | Yes      |              | font style of countdown title
+titleStyle        | object | Yes      |     none         | font style of countdown title
+countingStyle     | ViewPropTypes | Yes      | none | custom style when counting down
+countingTitleTemplate | string | Yes | {time}s后重新获取 | counting down title, must conform to the format that contain `{time}`
+countingTitleStyle | object | Yes | none | custom title style when counting down
 shouldHandleBeforeCountdown | function | Yes         | return true      | before start countdown, you can use this function to handle some business logic, return true to allow countdown, otherwise return false
 
 ## Methods
