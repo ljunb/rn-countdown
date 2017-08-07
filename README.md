@@ -4,7 +4,7 @@
 [![npm](https://img.shields.io/npm/dm/rn-countdown.svg)](https://www.npmjs.com/package/rn-countdown)
 [![npm](https://img.shields.io/npm/l/rn-countdown.svg)](https://github.com/ljunb/rn-countdown/blob/master/LICENSE)
 
-A smart countdown component for react-native apps. You may use it to handle different status when request a verification code. Supports custom styles in the countdown different status.
+A countdown component for react-native APPs. When the AppState changes to `inactive`, the timer is cleared and the new timer is turned on when the state changes back to `active`. You should use this component to request a verification code that supports custom styles for different status.
 
 ## Preview
 ![demo](https://github.com/ljunb/screenshots/blob/master/rn-countdown.gif)

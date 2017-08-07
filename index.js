@@ -1,5 +1,6 @@
 /*
- * A smart countdown component for react-native apps. You may use it to handle different status when request a verification code.
+ * A smart countdown component for react-native apps.
+ * You may use it to handle different status when request a verification code.
  * https://github.com/ljunb/react-native-countdown/
  * Released under the MIT license
  * Copyright (c) 2017 ljunb <cookiejlim@gmail.com>
@@ -10,7 +11,8 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    ViewPropTypes
+    ViewPropTypes,
+    AppState
 } from 'react-native';
 
 /**
@@ -31,40 +33,37 @@ export default class Countdown extends Component {
         title: PropTypes.string,
         time: PropTypes.number,
         overTitle: PropTypes.string,
-        titleStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
+        titleStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number, PropTypes.array]),
         countingStyle: ViewPropTypes.style,
         countingTitleTemplate: PropTypes.string,
-        countingTitleStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
+        countingTitleStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number, PropTypes.array]),
         shouldHandleBeforeCountdown: PropTypes.func
     };
 
     static defaultProps = {
         title: '获取短信验证码',
         time: 30,
-        countingTitleTemplate: '{time}s后重新获取',
         overTitle: '重新获取',
+        countingTitleTemplate: '{time}s后重新获取',
         shouldHandleBeforeCountdown: () => true
     };
 
     constructor(props) {
         super(props);
+        this.recodTime = 0;
         this.state = {
             second: props.time,
             status: CountdownStatus.None
         }
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        const {time, title, overTitle, countingTitleTemplate} = this.props;
-        const {second, status} = this.state;
-
-        const isNewComp = nextProps.title !== title || nextProps.time !== time || nextProps.overTitle !== overTitle || nextProps.countingTitleTemplate !== countingTitleTemplate;
-        const isCounting = nextState.second !== second || nextState.status !== status;
-        return isNewComp || isCounting;
+    componentDidMount() {
+        AppState.addEventListener('change', this.handleAppState);
     }
 
     componentWillUnmount() {
         this.clearTimer();
+        AppState.removeEventListener('change', this.handleAppState);
     }
 
     stopCountdown = () => {
@@ -74,16 +73,34 @@ export default class Countdown extends Component {
         }, this.clearTimer);
     };
 
+    handleAppState = nextAppState => {
+        if (nextAppState === 'inactive') {
+            this.recodTime = new Date();
+            this.clearTimer();
+        } else if (nextAppState === 'active') {
+            if (this.state.status !== CountdownStatus.Counting) return;
+
+            const now = new Date();
+            const diff = Math.round((now - this.recodTime) / 1000);
+            if (this.state.second - diff <= 0) {
+                this.setState({status: CountdownStatus.Over, second: this.props.time});
+            } else {
+                this.setState({
+                    status: CountdownStatus.Counting,
+                    second: this.state.second - diff
+                }, this.startTimer)
+            }
+        }
+    };
+
     handlePress = () => {
         const {shouldHandleBeforeCountdown, countingTitleTemplate} = this.props;
-        const {status} = this.state;
-
         const canStartTimer = shouldHandleBeforeCountdown();
-        if (status === CountdownStatus.Counting || !canStartTimer) return;
-        if (countingTitleTemplate.indexOf('{time}') === -1) {
-            console.warn('[rn-countdown] The countingTitleTemplate string must conform to the format that contain `{time}`!');
-        }
+        if (!canStartTimer) return;
         this.setState({status: CountdownStatus.Counting}, this.startTimer);
+
+        const showWarn = countingTitleTemplate.indexOf('{time}') === -1;
+        showWarn && console.warn('[rn-countdown] The countingTitleTemplate string must conform to the format that contain `{time}`!');
     };
 
     startTimer = () => {
