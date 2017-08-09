@@ -36,6 +36,9 @@ import CountdownView from 'rn-countdown';
 
 export default class RNCountdownDemo extends Component {
 
+    state = {
+        hasText: false
+    };
     phoneNumber = '';
 
     shouldHandleBeforeCountdown = () => {
@@ -49,7 +52,15 @@ export default class RNCountdownDemo extends Component {
         this.countdown && this.countdown.stopCountdown();
     };
 
+    handleChangeText = text => {
+        this.phoneNumber = text;
+        this.setState({hasText: !!this.phoneNumber})
+    };
+
     render() {
+        const style = this.state.hasText ? {backgroundColor: 'rgb(59, 197, 81)', borderWidth: 0} : {};
+        const title = this.state.hasText ? {color: '#fff'} : {};
+
         return (
             <View style={styles.container}>
                 <View style={styles.phoneCell}>
@@ -59,7 +70,7 @@ export default class RNCountdownDemo extends Component {
                             style={styles.input}
                             placeholder="请输入手机号码"
                             underlineColorAndroid="transparent"
-                            onChangeText={text => this.phoneNumber = text}
+                            onChangeText={this.handleChangeText}
                         />
                     </View>
                     <CountdownView
@@ -67,8 +78,8 @@ export default class RNCountdownDemo extends Component {
                         time={10}
                         title="发送验证码"
                         overTitle="重新发送"
-                        style={styles.countdown}
-                        titleStyle={styles.countdownTitle}
+                        style={[styles.countdown, style]}
+                        titleStyle={[styles.countdownTitle, title]}
                         countingTitleTemplate="发送中({time})"
                         countingStyle={styles.countingdown}
                         countingTitleStyle={styles.countingTitle}
@@ -111,15 +122,13 @@ const styles = StyleSheet.create({
         fontSize: 14
     },
     countdown: {
-        backgroundColor: 'rgb(59, 197, 81)',
         borderRadius: 15,
-        borderWidth: 0
     },
     countingdown: {
         backgroundColor: 'transparent',
         borderWidth: StyleSheet.hairlineWidth
     },
-    countdownTitle: {color: '#fff'},
+    countdownTitle: {color: '#ccc'},
     countingTitle: {color: '#ccc'}
 });
 ```

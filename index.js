@@ -1,12 +1,12 @@
 /*
  * A smart countdown component for react-native apps.
  * You may use it to handle different status when request a verification code.
- * https://github.com/ljunb/react-native-countdown/
+ * https://github.com/ljunb/rn-countdown/
  * Released under the MIT license
  * Copyright (c) 2017 ljunb <cookiejlim@gmail.com>
  */
 
-import React, {Component, PropTypes} from 'react';
+import React, {PureComponent, PropTypes} from 'react';
 import {
     StyleSheet,
     Text,
@@ -19,7 +19,7 @@ import {
  * The status of countdown view.
  * None：default
  * Counting：counting down
- * Over：countdown ends
+ * Over：countdown over
  * */
 const CountdownStatus = {
     None: 0,
@@ -27,7 +27,7 @@ const CountdownStatus = {
     Over: 2
 };
 
-export default class Countdown extends Component {
+export default class Countdown extends PureComponent {
     static propTypes = {
         style: ViewPropTypes.style,
         title: PropTypes.string,
@@ -79,28 +79,38 @@ export default class Countdown extends Component {
             this.clearTimer();
         } else if (nextAppState === 'active') {
             if (this.state.status !== CountdownStatus.Counting) return;
+            this.turnsOnTimer();
+        }
+    };
 
-            const now = new Date();
-            const diff = Math.round((now - this.recodTime) / 1000);
-            if (this.state.second - diff <= 0) {
-                this.setState({status: CountdownStatus.Over, second: this.props.time});
-            } else {
-                this.setState({
-                    status: CountdownStatus.Counting,
-                    second: this.state.second - diff
-                }, this.startTimer)
-            }
+    turnsOnTimer = () => {
+        const now = new Date();
+        const diff = Math.round((now - this.recodTime) / 1000);
+        if (this.state.second - diff <= 0) {
+            this.setState({status: CountdownStatus.Over, second: this.props.time});
+        } else {
+            this.setState({
+                status: CountdownStatus.Counting,
+                second: this.state.second - diff
+            }, this.startTimer)
         }
     };
 
     handlePress = () => {
-        const {shouldHandleBeforeCountdown, countingTitleTemplate} = this.props;
+        const {shouldHandleBeforeCountdown} = this.props;
         const canStartTimer = shouldHandleBeforeCountdown();
         if (!canStartTimer) return;
-        this.setState({status: CountdownStatus.Counting}, this.startTimer);
 
-        const showWarn = countingTitleTemplate.indexOf('{time}') === -1;
-        showWarn && console.warn('[rn-countdown] The countingTitleTemplate string must conform to the format that contain `{time}`!');
+        this.setState({status: CountdownStatus.Counting}, this.startTimer);
+        this.shouldShowWarningInfo();
+    };
+
+    shouldShowWarningInfo = () => {
+        const {countingTitleTemplate} = this.props;
+        const isCorrectFormat = countingTitleTemplate.includes('{time}');
+        if (!isCorrectFormat) {
+            console.warn("[rn-countdown] Warning: Failed prop format: Invalid prop `countingTitleTemplate` of format without substring `{time}`.");
+        }
     };
 
     startTimer = () => {
