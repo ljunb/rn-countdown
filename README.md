@@ -4,7 +4,7 @@
 [![npm](https://img.shields.io/npm/dm/rn-countdown.svg)](https://www.npmjs.com/package/rn-countdown)
 [![npm](https://img.shields.io/npm/l/rn-countdown.svg)](https://github.com/ljunb/rn-countdown/blob/master/LICENSE)
 
-A countdown component for react-native APPs. When the AppState changes to `inactive`, the timer is cleared and the new timer is turned on when the state changes back to `active`. You should use this component to request a verification code that supports custom styles for different status.
+A countdown component for react-native APPs. You should use this component to request a verification code that supports custom styles for different status.
 
 ## Preview
 ![demo](https://github.com/ljunb/screenshots/blob/master/rn-countdown.gif)
@@ -25,111 +25,114 @@ yarn add rn-countdown
 ```js
 import React, {Component} from 'react';
 import {
-    StyleSheet,
-    View,
-    Button,
-    TextInput,
-    Text,
-    Dimensions
+  StyleSheet,
+  View,
+  Button,
+  TextInput,
+  Text,
+  Dimensions
 } from 'react-native';
 import CountdownView from 'rn-countdown';
 
 export default class RNCountdownDemo extends Component {
 
-    state = {
-        hasText: false
-    };
-    phoneNumber = '';
+  state = {
+    hasText: false
+  };
+  phoneNumber = '';
 
-    shouldHandleBeforeCountdown = () => {
-        if (this.phoneNumber) return true;
+  shouldStartCountdown = () => {
+    if (this.phoneNumber) return true;
 
-        alert('电话号码不能为空!');
-        return false;
-    };
+    alert('电话号码不能为空!');
+    return false;
+  };
+  
+  handleNetworkFailed = () => alert('network failed');
 
-    handleStopCountdown = () => {
-        this.countdown && this.countdown.stopCountdown();
-    };
+  handleStopCountdown = () => {
+    this.countdown && this.countdown.stopCountdown();
+  };
 
-    handleChangeText = text => {
-        this.phoneNumber = text;
-        this.setState({hasText: !!this.phoneNumber})
-    };
+  handleChangeText = text => {
+    this.phoneNumber = text;
+    this.setState({hasText: !!this.phoneNumber})
+  };
 
-    render() {
-        const style = this.state.hasText ? {backgroundColor: 'rgb(59, 197, 81)', borderWidth: 0} : {};
-        const title = this.state.hasText ? {color: '#fff'} : {};
+  render() {
+    const style = this.state.hasText ? {backgroundColor: 'rgb(59, 197, 81)', borderWidth: 0} : {};
+    const title = this.state.hasText ? {color: '#fff'} : {};
 
-        return (
-            <View style={styles.container}>
-                <View style={styles.phoneCell}>
-                    <View style={styles.phoneInfo}>
-                        <Text>账号:</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="请输入手机号码"
-                            underlineColorAndroid="transparent"
-                            onChangeText={this.handleChangeText}
-                        />
-                    </View>
-                    <CountdownView
-                        ref={r => this.countdown = r}
-                        time={10}
-                        title="发送验证码"
-                        overTitle="重新发送"
-                        style={[styles.countdown, style]}
-                        titleStyle={[styles.countdownTitle, title]}
-                        countingTitleTemplate="发送中({time})"
-                        countingStyle={styles.countingdown}
-                        countingTitleStyle={styles.countingTitle}
-                        shouldHandleBeforeCountdown={this.shouldHandleBeforeCountdown}
-                    />
-                </View>
-                <Button title="停止" onPress={this.handleStopCountdown}/>
-            </View>
-        );
-    }
+    return (
+      <View style={styles.container}>
+        <View style={styles.phoneCell}>
+          <View style={styles.phoneInfo}>
+            <Text>账号:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="请输入手机号码"
+              underlineColorAndroid="transparent"
+              onChangeText={this.handleChangeText}
+            />
+          </View>
+          <CountdownView
+            ref={r => this.countdown = r}
+            time={10}
+            title="发送验证码"
+            overTitle="重新发送"
+            style={[styles.countdown, style]}
+            titleStyle={[styles.countdownTitle, title]}
+            countingTitleTemplate="发送中({time})"
+            countingStyle={styles.countingdown}
+            countingTitleStyle={styles.countingTitle}
+            shouldStartCountdown={this.shouldStartCountdown}
+            onNetworkFailed={this.handleNetworkFailed}
+          />
+        </View>
+        <Button title="停止" onPress={this.handleStopCountdown}/>
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#F5FCFF',
-    },
-    phoneCell: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 15,
-        height: 40,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderColor: '#ebebeb',
-        width: Dimensions.get('window').width,
-        backgroundColor: '#fff'
-    },
-    phoneInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    input: {
-        height: 30,
-        width: Dimensions.get('window').width * 0.4,
-        marginLeft: 10,
-        padding: 0,
-        fontSize: 14
-    },
-    countdown: {
-        borderRadius: 15,
-    },
-    countingdown: {
-        backgroundColor: 'transparent',
-        borderWidth: StyleSheet.hairlineWidth
-    },
-    countdownTitle: {color: '#ccc'},
-    countingTitle: {color: '#ccc'}
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF',
+  },
+  phoneCell: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+    height: 40,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderColor: '#ebebeb',
+    width: Dimensions.get('window').width,
+    backgroundColor: '#fff'
+  },
+  phoneInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  input: {
+    height: 30,
+    width: Dimensions.get('window').width * 0.4,
+    marginLeft: 10,
+    padding: 0,
+    fontSize: 14
+  },
+  countdown: {
+    borderRadius: 15,
+  },
+  countingdown: {
+    backgroundColor: 'transparent',
+    borderWidth: StyleSheet.hairlineWidth
+  },
+  countdownTitle: {color: '#ccc'},
+  countingTitle: {color: '#ccc'}
 });
 ```
 
@@ -145,7 +148,9 @@ titleStyle        | object | Yes      |     none         | font style of countdo
 countingStyle     | ViewPropTypes | Yes      | none | custom style when counting down
 countingTitleTemplate | string | Yes | {time}s后重新获取 | counting down title, must conform to the format that contain `{time}`
 countingTitleStyle | object | Yes | none | custom title style when counting down
-shouldHandleBeforeCountdown | function | Yes         | return true      | before start countdown, you can use this function to handle some business logic, return true to allow countdown, otherwise return false
+shouldStartCountdown | function | Yes         | return true      | before start countdown, you can use this function to handle some business logic, return true to allow countdown, otherwise return false
+onNetworkFailed   | function | Yes | none | invoke when the network is failed, so the countdown timer will be invalid in this situation, maybe you will use it to show some message for users
+
 
 ## Methods
 Method            | Description
