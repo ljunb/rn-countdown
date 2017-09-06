@@ -155,4 +155,5 @@ onNetworkFailed   | function | Yes | none | invoke when the network is failed, s
 ## Methods
 Method            | Description
 ----------------  | -----------
+startCountdown    | start countdown
 stopCountdown     | stop countdown anytime you want, such as network failed or other situations

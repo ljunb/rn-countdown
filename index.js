@@ -6,14 +6,14 @@
  * Copyright (c) 2017 ljunb <cookiejlim@gmail.com>
  */
 
-import React, {PureComponent, PropTypes} from 'react';
+import React, { PureComponent, PropTypes } from 'react';
 import {
   StyleSheet,
   Text,
   TouchableOpacity,
   ViewPropTypes,
   AppState,
-  NetInfo
+  NetInfo,
 } from 'react-native';
 
 /**
@@ -25,10 +25,26 @@ import {
 const CountdownStatus = {
   None: 0,
   Counting: 1,
-  Over: 2
+  Over: 2,
 };
 
-class Countdown extends PureComponent {
+const styles = StyleSheet.create({
+  container: {
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#ebebeb',
+    borderRadius: 2,
+    height: 30,
+    width: 100,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  title: {
+    fontSize: 12,
+    color: '#aaa',
+  },
+});
+
+export default class Countdown extends PureComponent {
   static propTypes = {
     style: ViewPropTypes.style,
     title: PropTypes.string,
@@ -39,7 +55,7 @@ class Countdown extends PureComponent {
     countingTitleTemplate: PropTypes.string,
     countingTitleStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number, PropTypes.array]),
     shouldStartCountdown: PropTypes.func,
-    onNetworkFailed: PropTypes.func
+    onNetworkFailed: PropTypes.func,
   };
 
   static defaultProps = {
@@ -56,7 +72,7 @@ class Countdown extends PureComponent {
     this.state = {
       second: props.time,
       status: CountdownStatus.None,
-      isConnected: true
+      isConnected: true,
     }
   }
 
@@ -71,12 +87,17 @@ class Countdown extends PureComponent {
     NetInfo.isConnected.removeEventListener('change', this.handleNetworkConnectivityChange);
   }
 
-  handleNetworkConnectivityChange = isConnected => this.setState({isConnected});
+  handleNetworkConnectivityChange = isConnected => this.setState({ isConnected });
+
+  startCountdown = () => {
+    if (this.state.status === CountdownStatus.Counting) return;
+    this.handlePress();
+  }
 
   stopCountdown = () => {
     this.setState({
       status: CountdownStatus.Over,
-      second: this.props.time
+      second: this.props.time,
     }, this.clearTimer);
   };
 
@@ -93,26 +114,27 @@ class Countdown extends PureComponent {
   turnsOnTimer = () => {
     const now = new Date();
     const diff = Math.round((now - this.recodTime) / 1000);
+    // timer should be over
     if (this.state.second - diff <= 0) {
-      this.setState({status: CountdownStatus.Over, second: this.props.time});
+      this.setState({ status: CountdownStatus.Over, second: this.props.time });
     } else {
       this.setState({
         status: CountdownStatus.Counting,
-        second: this.state.second - diff
-      }, this.startTimer)
+        second: this.state.second - diff,
+      }, this.startTimer);
     }
   };
 
   handlePress = () => {
     if (this.isNetworkFailed() || !this.canStartTimer()) return;
 
-    this.setState({status: CountdownStatus.Counting}, this.startTimer);
+    this.setState({ status: CountdownStatus.Counting }, this.startTimer);
     this.shouldShowWarningInfo();
   };
 
   isNetworkFailed = () => {
-    const {onNetworkFailed} = this.props;
-    const {isConnected} = this.state;
+    const { onNetworkFailed } = this.props;
+    const { isConnected } = this.state;
     // network is failed
     if (!isConnected) {
       onNetworkFailed && onNetworkFailed();
@@ -121,18 +143,12 @@ class Countdown extends PureComponent {
   };
 
   canStartTimer = () => {
-    const {shouldHandleBeforeCountdown, shouldStartCountdown} = this.props;
-
-    let canStartTimer = shouldStartCountdown();
-    if (shouldHandleBeforeCountdown !== undefined && typeof shouldHandleBeforeCountdown === 'function') {
-      canStartTimer = shouldHandleBeforeCountdown();
-      console.warn(`[rn-countdown] Warning: "shouldHandleBeforeCountdown" is deprecated, use "shouldStartCountdown" instead.`);
-    }
-    return canStartTimer;
+    const { shouldStartCountdown } = this.props;
+    return shouldStartCountdown();
   };
 
   shouldShowWarningInfo = () => {
-    const {countingTitleTemplate} = this.props;
+    const { countingTitleTemplate } = this.props;
     const isCorrectFormat = countingTitleTemplate.includes('{time}');
     if (!isCorrectFormat) {
       console.warn("[rn-countdown] Warning: Failed prop format: Invalid prop `countingTitleTemplate` of format without substring `{time}`.");
@@ -140,23 +156,24 @@ class Countdown extends PureComponent {
   };
 
   startTimer = () => {
-    const {time} = this.props;
+    const { time } = this.props;
 
     this.timer = setInterval(() => {
       let nextSecond = this.state.second - 1;
+      // countdown over
       if (nextSecond === 0) {
         this.clearTimer();
-        this.setState({status: CountdownStatus.Over, second: time});
+        this.setState({ status: CountdownStatus.Over, second: time });
         return;
       }
-      this.setState({second: nextSecond});
+      this.setState({ second: nextSecond });
     }, 1000);
   };
 
   clearTimer = () => this.timer && clearInterval(this.timer);
 
   render() {
-    const {status, second} = this.state;
+    const { status, second } = this.state;
     const {
       title, style, overTitle, titleStyle,
       countingTitleTemplate, countingStyle, countingTitleStyle
@@ -176,31 +193,13 @@ class Countdown extends PureComponent {
 
     return (
       <TouchableOpacity
-        disabled={status === CountdownStatus.Counting}
+        disabled={ status === CountdownStatus.Counting }
         activeOpacity={0.75}
         style={containerStyle}
         onPress={this.handlePress}
       >
         <Text style={textStyle}>{promptTitle}</Text>
       </TouchableOpacity>
-    )
+    );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#ebebeb',
-    borderRadius: 2,
-    height: 30,
-    width: 100,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  title: {
-    fontSize: 12,
-    color: '#aaa',
-  }
-});
-
-export default Countdown;
