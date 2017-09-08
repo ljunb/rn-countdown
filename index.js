@@ -90,8 +90,15 @@ export default class Countdown extends PureComponent {
   handleNetworkConnectivityChange = isConnected => this.setState({ isConnected });
 
   startCountdown = () => {
-    if (this.state.status === CountdownStatus.Counting) return;
-    this.handlePress();
+    const { onNetworkFailed } = this.props;
+    const { status, isConnected } = this.state;
+    if (status === CountdownStatus.Counting) return;
+
+    if (isConnected) {
+      this.setState({ status: CountdownStatus.Counting }, this.startTimer);
+    } else {
+      onNetworkFailed && onNetworkFailed();
+    }
   }
 
   stopCountdown = () => {
