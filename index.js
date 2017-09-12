@@ -78,13 +78,13 @@ export default class Countdown extends PureComponent {
 
   componentDidMount() {
     AppState.addEventListener('change', this.handleAppState);
-    NetInfo.isConnected.addEventListener('change', this.handleNetworkConnectivityChange);
+    NetInfo.isConnected.addEventListener('connectionChange', this.handleNetworkConnectivityChange);
   }
 
   componentWillUnmount() {
     this.clearTimer();
     AppState.removeEventListener('change', this.handleAppState);
-    NetInfo.isConnected.removeEventListener('change', this.handleNetworkConnectivityChange);
+    NetInfo.isConnected.removeEventListener('connectionChange', this.handleNetworkConnectivityChange);
   }
 
   handleNetworkConnectivityChange = isConnected => this.setState({ isConnected });
