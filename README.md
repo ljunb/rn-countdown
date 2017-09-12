@@ -7,10 +7,10 @@
 A countdown component for react-native APPs. You should use this component to request a verification code that supports custom styles for different status.
 
 ## Supported version
-React Native version(s)            | Supporting CodePush version(s)
-----------------                   | -----------
->= 0.48.0                          | v0.3.0 (NetInfo change -> connectionChange for eventListener)
-< 0.48.0                           | v0.2.1
+React Native version(s) | Supporting CodePush version(s)
+----------------------- | ------------------------------ 
+0.48.0 +                | v0.3.0 (NetInfo change -> connectionChange for eventListener)
+< 0.48.0                | v0.2.1
 
 ## Preview
 ![demo](https://github.com/ljunb/screenshots/blob/master/rn-countdown.gif)
