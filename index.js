@@ -6,7 +6,7 @@
  * Copyright (c) 2017 ljunb <cookiejlim@gmail.com>
  */
 
-import React, { PureComponent, PropTypes } from 'react';
+import React, { PureComponent } from 'react';
 import {
   StyleSheet,
   Text,
@@ -15,6 +15,7 @@ import {
   AppState,
   NetInfo,
 } from 'react-native';
+import PropTypes from 'prop-types';
 
 /**
  * The status of countdown view.
