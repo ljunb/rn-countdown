@@ -9,7 +9,7 @@ A countdown component for react-native APPs. You should use this component to re
 ## Supported version
 React Native version(s) | Supporting CodePush version(s)
 ----------------------- | ------------------------------ 
-0.48.0 +                | v0.3.0 (NetInfo change -> connectionChange for eventListener)
+0.48.0+                 | v0.3.0+ (NetInfo change -> connectionChange for eventListener)
 < 0.48.0                | v0.2.1
 
 ## Preview
