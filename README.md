@@ -2,6 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/rn-countdown.svg)](https://www.npmjs.com/package/rn-countdown)
 [![npm](https://img.shields.io/npm/dm/rn-countdown.svg)](https://www.npmjs.com/package/rn-countdown)
+[![npm](https://img.shields.io/npm/dt/rn-countdown.svg)](https://www.npmjs.com/package/rn-countdown)
 [![npm](https://img.shields.io/npm/l/rn-countdown.svg)](https://github.com/ljunb/rn-countdown/blob/master/LICENSE)
 
 A countdown component for react-native APPs. You should use this component to request a verification code that supports custom styles for different status.
