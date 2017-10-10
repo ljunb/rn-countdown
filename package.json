@@ -1,6 +1,6 @@
 {
   "name": "rn-countdown",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "A smart countdown component for react-native apps. You may use it to handle different status when request a verification code.",
   "main": "index.js",
   "scripts": {

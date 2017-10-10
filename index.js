@@ -110,7 +110,7 @@ export default class Countdown extends PureComponent {
   };
 
   handleAppState = nextAppState => {
-    if (nextAppState === 'inactive') {
+    if (nextAppState === 'background') {
       this.recodTime = new Date();
       this.clearTimer();
     } else if (nextAppState === 'active') {
