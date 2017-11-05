@@ -163,6 +163,7 @@ titleStyle        | object | Yes      |     none         | font style of countdo
 countingStyle     | ViewPropTypes | Yes      | none | custom style when counting down
 countingTitleTemplate | string | Yes | {time}s后重新获取 | counting down title, must conform to the format that contain `{time}`
 countingTitleStyle | object | Yes | none | custom title style when counting down
+timeFontStyle      | FontPropTypes | Yes | none | font style of time
 shouldStartCountdown | function | Yes         | return true      | before start countdown, you can use this function to handle some business logic, return true to allow countdown, otherwise return false
 onNetworkFailed   | function | Yes | none | invoke when the network is failed, so the countdown timer will be invalid in this situation, maybe you will use it to show some message for users
 

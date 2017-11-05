@@ -55,6 +55,7 @@ export default class Countdown extends PureComponent {
     countingStyle: ViewPropTypes.style,
     countingTitleTemplate: PropTypes.string,
     countingTitleStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number, PropTypes.array]),
+    timeFontStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number, PropTypes.array]),
     shouldStartCountdown: PropTypes.func,
     onNetworkFailed: PropTypes.func,
   };
@@ -180,33 +181,65 @@ export default class Countdown extends PureComponent {
 
   clearTimer = () => this.timer && clearInterval(this.timer);
 
-  render() {
-    const { status, second } = this.state;
+  getCountingComponent = () => {
+    const { second } = this.state;
     const {
-      title, style, overTitle, titleStyle,
-      countingTitleTemplate, countingStyle, countingTitleStyle
+      countingTitleTemplate,
+      titleStyle, countingStyle, countingTitleStyle, timeFontStyle
     } = this.props;
 
-    let promptTitle = title,
-      containerStyle = [styles.container, style],
-      textStyle = [styles.title, titleStyle];
+    const templateIndex = countingTitleTemplate.indexOf('{time}');
+    const titleLength = countingTitleTemplate.length;
+    const baseStyle = [styles.title, titleStyle, countingTitleStyle];
+    const timeComponent = <Text style={timeFontStyle}>{second}</Text>;
 
-    if (status === CountdownStatus.Counting) {
-      promptTitle = countingTitleTemplate.replace('{time}', second);
-      containerStyle.push(countingStyle);
-      textStyle.push(countingTitleStyle);
-    } else if (status === CountdownStatus.Over) {
-      promptTitle = overTitle;
+    if (countingTitleTemplate === '{time}') {
+      return <Text style={[baseStyle, timeFontStyle]}>{second}</Text>;
+    } else if (templateIndex === 0 && titleLength > 6) {
+      const restText = countingTitleTemplate.split('}')[1];
+      return (
+        <Text style={baseStyle}>
+          {timeComponent}
+          {restText}
+        </Text>
+      )
+    } else if (templateIndex === titleLength - 6) {
+      const restText = countingTitleTemplate.split('{')[0];
+      return (
+        <Text style={baseStyle}>
+          {restText}
+          {timeComponent}
+        </Text>
+      )
     }
+
+    return (
+      <Text style={[styles.title, titleStyle, countingTitleStyle]}>
+        {countingTitleTemplate.split('{time}')[0]}
+        {timeComponent}
+        {countingTitleTemplate.split('{time}')[1]}
+      </Text>
+    )
+  };
+
+  render() {
+    const { status, second } = this.state;
+    const { title, style, overTitle, titleStyle } = this.props;
+    const isCounting = status === CountdownStatus.Counting;
 
     return (
       <TouchableOpacity
         disabled={ status === CountdownStatus.Counting }
         activeOpacity={0.75}
-        style={containerStyle}
+        style={[styles.container, style]}
         onPress={this.handlePress}
       >
-        <Text style={textStyle}>{promptTitle}</Text>
+        {isCounting && this.getCountingComponent()}
+        {!isCounting &&
+        <Text style={[styles.title, titleStyle]}>
+          {status === CountdownStatus.None ? title : overTitle}
+        </Text>
+        }
       </TouchableOpacity>
     );
   }
