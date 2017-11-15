@@ -58,6 +58,7 @@ export default class Countdown extends PureComponent {
     timeFontStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number, PropTypes.array]),
     shouldStartCountdown: PropTypes.func,
     onNetworkFailed: PropTypes.func,
+    onCountdownOver: PropTypes.func,
   };
 
   static defaultProps = {
@@ -104,6 +105,9 @@ export default class Countdown extends PureComponent {
   }
 
   stopCountdown = () => {
+    const { onCountdownOver } = this.props;
+    onCountdownOver && onCountdownOver();
+
     this.setState({
       status: CountdownStatus.Over,
       second: this.props.time,
@@ -121,10 +125,12 @@ export default class Countdown extends PureComponent {
   };
 
   turnsOnTimer = () => {
+    const { onCountdownOver } = this.props;
     const now = new Date();
     const diff = Math.round((now - this.recodTime) / 1000);
     // timer should be over
     if (this.state.second - diff <= 0) {
+      onCountdownOver && onCountdownOver();
       this.setState({ status: CountdownStatus.Over, second: this.props.time });
     } else {
       this.setState({
@@ -165,12 +171,14 @@ export default class Countdown extends PureComponent {
   };
 
   startTimer = () => {
-    const { time } = this.props;
+    const { time, onCountdownOver } = this.props;
 
     this.timer = setInterval(() => {
       let nextSecond = this.state.second - 1;
       // countdown over
       if (nextSecond === 0) {
+        onCountdownOver && onCountdownOver();
+        
         this.clearTimer();
         this.setState({ status: CountdownStatus.Over, second: time });
         return;
