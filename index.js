@@ -24,9 +24,9 @@ import PropTypes from 'prop-types';
  * Over：countdown over
  * */
 const CountdownStatus = {
-  None: 0,
-  Counting: 1,
-  Over: 2,
+  None: 'None',
+  Counting: 'Counting',
+  Over: 'Over',
 };
 
 const styles = StyleSheet.create({
@@ -93,12 +93,12 @@ export default class Countdown extends PureComponent {
   handleNetworkConnectivityChange = isConnected => this.setState({ isConnected });
 
   startCountdown = () => {
-    const { onNetworkFailed } = this.props;
+    const { onNetworkFailed, time: second } = this.props;
     const { status, isConnected } = this.state;
     if (status === CountdownStatus.Counting) return;
 
     if (isConnected) {
-      this.setState({ status: CountdownStatus.Counting }, this.startTimer);
+      this.setState({ status: CountdownStatus.Counting, second }, this.startTimer);
     } else {
       onNetworkFailed && onNetworkFailed();
     }
@@ -115,12 +115,13 @@ export default class Countdown extends PureComponent {
   };
 
   handleAppState = nextAppState => {
-    if (nextAppState === 'background') {
-      this.recodTime = new Date();
-      this.clearTimer();
-    } else if (nextAppState === 'active') {
+    if (nextAppState === 'active') {
       if (this.state.status !== CountdownStatus.Counting) return;
       this.turnsOnTimer();
+    } else {
+      // record time while app state change to inactive or background
+      this.recodTime = new Date();
+      this.clearTimer();
     }
   };
 
@@ -237,7 +238,7 @@ export default class Countdown extends PureComponent {
 
     return (
       <TouchableOpacity
-        disabled={ status === CountdownStatus.Counting }
+        disabled={isCounting}
         activeOpacity={0.75}
         style={[styles.container, style]}
         onPress={this.handlePress}
