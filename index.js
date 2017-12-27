@@ -194,7 +194,7 @@ export default class Countdown extends PureComponent {
     const { second } = this.state;
     const {
       countingTitleTemplate,
-      titleStyle, countingStyle, countingTitleStyle, timeFontStyle
+      titleStyle, countingTitleStyle, timeFontStyle
     } = this.props;
 
     const templateIndex = countingTitleTemplate.indexOf('{time}');
@@ -233,14 +233,17 @@ export default class Countdown extends PureComponent {
 
   render() {
     const { status, second } = this.state;
-    const { title, style, overTitle, titleStyle } = this.props;
+    const { title, style, overTitle, titleStyle, countingStyle } = this.props;
+
     const isCounting = status === CountdownStatus.Counting;
+    const containerStyle = [styles.container, style];
+    if (isCounting) containerStyle.push(countingStyle);
 
     return (
       <TouchableOpacity
         disabled={isCounting}
         activeOpacity={0.75}
-        style={[styles.container, style]}
+        style={containerStyle}
         onPress={this.handlePress}
       >
         {isCounting && this.getCountingComponent()}
