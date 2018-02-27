@@ -12,7 +12,6 @@ import {
   Text,
   TouchableOpacity,
   ViewPropTypes,
-  AppState,
   NetInfo,
 } from 'react-native';
 import PropTypes from 'prop-types';
@@ -24,7 +23,7 @@ import PropTypes from 'prop-types';
  * Over：countdown over
  * */
 const CountdownStatus = {
-  None: 'None',
+  Idle: 'Idle',
   Counting: 'Counting',
   Over: 'Over',
 };
@@ -37,14 +36,14 @@ const styles = StyleSheet.create({
     height: 30,
     width: 100,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   title: {
     fontSize: 12,
     color: '#aaa',
   },
 });
-
+const now = new Date();
 export default class Countdown extends PureComponent {
   static propTypes = {
     style: ViewPropTypes.style,
@@ -71,74 +70,46 @@ export default class Countdown extends PureComponent {
 
   constructor(props) {
     super(props);
-    this.recodTime = 0;
+    this.targetTime = new Date(now.getTime() + props.time * 1000);
+
     this.state = {
-      second: props.time,
-      status: CountdownStatus.None,
+      second: props.time * 1000,
+      status: CountdownStatus.Idle,
       isConnected: true,
-    }
+    };
   }
 
   componentDidMount() {
-    AppState.addEventListener('change', this.handleAppState);
     NetInfo.isConnected.addEventListener('connectionChange', this.handleNetworkConnectivityChange);
   }
 
   componentWillUnmount() {
     this.clearTimer();
-    AppState.removeEventListener('change', this.handleAppState);
     NetInfo.isConnected.removeEventListener('connectionChange', this.handleNetworkConnectivityChange);
   }
 
   handleNetworkConnectivityChange = isConnected => this.setState({ isConnected });
 
   startCountdown = () => {
-    const { onNetworkFailed, time: second } = this.props;
+    const { onNetworkFailed } = this.props;
     const { status, isConnected } = this.state;
     if (status === CountdownStatus.Counting) return;
 
     if (isConnected) {
-      this.setState({ status: CountdownStatus.Counting, second }, this.startTimer);
+      this.setState({ status: CountdownStatus.Counting}, this.startTimer);
     } else {
       onNetworkFailed && onNetworkFailed();
     }
-  }
+  };
 
   stopCountdown = () => {
-    const { onCountdownOver } = this.props;
+    const { onCountdownOver, time } = this.props;
     onCountdownOver && onCountdownOver();
 
     this.setState({
       status: CountdownStatus.Over,
-      second: this.props.time,
+      second: time * 1000,
     }, this.clearTimer);
-  };
-
-  handleAppState = nextAppState => {
-    if (nextAppState === 'active') {
-      if (this.state.status !== CountdownStatus.Counting) return;
-      this.turnsOnTimer();
-    } else {
-      // record time while app state change to inactive or background
-      this.recodTime = new Date();
-      this.clearTimer();
-    }
-  };
-
-  turnsOnTimer = () => {
-    const { onCountdownOver } = this.props;
-    const now = new Date();
-    const diff = Math.round((now - this.recodTime) / 1000);
-    // timer should be over
-    if (this.state.second - diff <= 0) {
-      onCountdownOver && onCountdownOver();
-      this.setState({ status: CountdownStatus.Over, second: this.props.time });
-    } else {
-      this.setState({
-        status: CountdownStatus.Counting,
-        second: this.state.second - diff,
-      }, this.startTimer);
-    }
   };
 
   handlePress = () => {
@@ -172,38 +143,46 @@ export default class Countdown extends PureComponent {
   };
 
   startTimer = () => {
+    this.updateTargetTime();
     const { time, onCountdownOver } = this.props;
 
     this.timer = setInterval(() => {
-      let nextSecond = this.state.second - 1;
+      const tmpNow = new Date();
+      const second = this.targetTime - tmpNow;
       // countdown over
-      if (nextSecond === 0) {
+      if (parseInt(second / 1000) === 0) {
         onCountdownOver && onCountdownOver();
-        
+
         this.clearTimer();
-        this.setState({ status: CountdownStatus.Over, second: time });
+        this.setState({ status: CountdownStatus.Over, second: time * 1000 });
         return;
       }
-      this.setState({ second: nextSecond });
+      this.setState({ second });
     }, 1000);
   };
 
   clearTimer = () => this.timer && clearInterval(this.timer);
 
+  updateTargetTime = () => {
+    const { time } = this.props;
+    const currentTime = new Date();
+    this.targetTime = new Date(currentTime.getTime() + (time + 1) * 1000);
+  };
+
   getCountingComponent = () => {
     const { second } = this.state;
     const {
-      countingTitleTemplate,
-      titleStyle, countingTitleStyle, timeFontStyle
+      countingTitleTemplate, titleStyle, countingTitleStyle, timeFontStyle,
     } = this.props;
 
+    const countdownSecond = parseInt(second / 1000);
     const templateIndex = countingTitleTemplate.indexOf('{time}');
     const titleLength = countingTitleTemplate.length;
     const baseStyle = [styles.title, titleStyle, countingTitleStyle];
-    const timeComponent = <Text style={timeFontStyle}>{second}</Text>;
+    const timeComponent = <Text style={timeFontStyle}>{countdownSecond}</Text>;
 
     if (countingTitleTemplate === '{time}') {
-      return <Text style={[baseStyle, timeFontStyle]}>{second}</Text>;
+      return <Text style={[baseStyle, timeFontStyle]}>{countdownSecond}</Text>;
     } else if (templateIndex === 0 && titleLength > 6) {
       const restText = countingTitleTemplate.split('}')[1];
       return (
@@ -211,7 +190,7 @@ export default class Countdown extends PureComponent {
           {timeComponent}
           {restText}
         </Text>
-      )
+      );
     } else if (templateIndex === titleLength - 6) {
       const restText = countingTitleTemplate.split('{')[0];
       return (
@@ -219,7 +198,7 @@ export default class Countdown extends PureComponent {
           {restText}
           {timeComponent}
         </Text>
-      )
+      );
     }
 
     return (
@@ -228,12 +207,14 @@ export default class Countdown extends PureComponent {
         {timeComponent}
         {countingTitleTemplate.split('{time}')[1]}
       </Text>
-    )
+    );
   };
 
   render() {
-    const { status, second } = this.state;
-    const { title, style, overTitle, titleStyle, countingStyle } = this.props;
+    const { status } = this.state;
+    const {
+      title, style, overTitle, titleStyle, countingStyle
+    } = this.props;
 
     const isCounting = status === CountdownStatus.Counting;
     const containerStyle = [styles.container, style];
@@ -249,7 +230,7 @@ export default class Countdown extends PureComponent {
         {isCounting && this.getCountingComponent()}
         {!isCounting &&
         <Text style={[styles.title, titleStyle]}>
-          {status === CountdownStatus.None ? title : overTitle}
+          {status === CountdownStatus.Idle ? title : overTitle}
         </Text>
         }
       </TouchableOpacity>
