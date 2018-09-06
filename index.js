@@ -150,7 +150,7 @@ export default class Countdown extends PureComponent {
       const tmpNow = new Date();
       const second = this.targetTime - tmpNow;
       // countdown over
-      if (parseInt(second / 1000) === 0) {
+      if (parseInt(second / 1000) <= 0) {
         onCountdownOver && onCountdownOver();
 
         this.clearTimer();
