@@ -6,6 +6,8 @@
 .gradle
 .idea
 node_modules
+example
+built
 npm-debug.log
 /android/build
 /ios/**/*xcuserdata*
