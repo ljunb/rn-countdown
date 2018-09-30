@@ -36,9 +36,9 @@ export default class Countdown extends React.Component<CountdownProps, Countdown
     NetInfo.isConnected.removeEventListener('connectionChange', this.handleNetworkConnectivityChange)
   }
 
-  handleNetworkConnectivityChange = (isConnected: boolean) => this.setState({ isConnected })
+  private handleNetworkConnectivityChange = (isConnected: boolean) => this.setState({ isConnected })
 
-  startCountdown = () => {
+  public startCountdown = () => {
     const { onNetworkFailed } = this.props
     const { status, isConnected } = this.state
     if (status === CountdownStatus.Counting) return
@@ -50,7 +50,7 @@ export default class Countdown extends React.Component<CountdownProps, Countdown
     }
   }
 
-  stopCountdown = () => {
+  public stopCountdown = () => {
     const { onDidFinishCountdown, time } = this.props
     onDidFinishCountdown && onDidFinishCountdown()
 
@@ -72,20 +72,17 @@ export default class Countdown extends React.Component<CountdownProps, Countdown
 
   handlePress = () => {
     if (this.isNetworkFailed) return
-    this.setState({ status: CountdownStatus.Counting }, this.startTimer)
+    this.props.onPress && this.props.onPress()
   }
 
-  startTimer = () => {
+  private startTimer = () => {
     this.updateTargetTime()
     const { time, onDidFinishCountdown } = this.props
 
-    // @ts-ignore
     this.timer = setInterval(() => {
       const tmpNow = new Date()
-      // @ts-ignore
       const second: number = this.targetTime - tmpNow
       // countdown over
-      // @ts-ignore
       if (parseInt(second / 1000) <= 0) {
         onDidFinishCountdown && onDidFinishCountdown()
 
@@ -97,9 +94,9 @@ export default class Countdown extends React.Component<CountdownProps, Countdown
     }, 1000)
   }
 
-  clearTimer = () => this.timer && clearInterval(this.timer)
+  private clearTimer = () => this.timer && clearInterval(this.timer)
 
-  updateTargetTime = () => {
+  private updateTargetTime = () => {
     const { time } = this.props
     const currentTime = new Date()
     this.targetTime = new Date(currentTime.getTime() + (time + 1) * 1000)

@@ -8,7 +8,8 @@ export interface CountdownProps {
   style: object | number,
   activeOpacity: number,
   time: number,
-  children: (props: RenderProps) => any
+  children: (props: RenderProps) => any,
+  onPress: () => void,
   onDidFinishCountdown: () => void,
   onNetworkFailed: () => void
 }
