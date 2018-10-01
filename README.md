@@ -5,20 +5,42 @@
 [![npm](https://img.shields.io/npm/dt/rn-countdown.svg)](https://www.npmjs.com/package/rn-countdown)
 [![npm](https://img.shields.io/npm/l/rn-countdown.svg)](https://github.com/ljunb/rn-countdown/blob/master/LICENSE)
 
-A countdown component for react-native APPs. You should use this component to request a verification code that supports custom styles for different status.
+适用于 React Native App 的一个倒计时组件，基于 `render-props` 方式实现，使用者可完全把重心放在 UI 定制上面，无须关注倒计时逻辑实现。
 
-## Supported version
-React Native version(s) | Supporting CodePush version(s)
+## 重要更新
+由于组件进行了重构，之前版本的大部分 `props` 有重大变更，罗列如下：
+
+* `overTitle`：倒计时结束文本（移除）
+* `titleStyle`：文本样式（移除）
+* `countingStyle`：倒计时中的容器样式（移除）
+* `countingTitleTemplate`：文本模板（移除）
+* `countingTitleStyle`：倒计时中的文本样式（移除）
+* `timeFontStyle`：针对时间文本的样式（移除）
+* `shouldStartCountdown`：是否允许开始倒计时回调（移除）
+* `onCountdownOver`：重命名为 `onDidFinishCountdown`，触发机制保持与之前一致（更新）
+* `onNetworkFailed`：网络出错情况下，点击触发的回调（保留）
+* `style`：容器样式（保留）
+* `time`：倒计时总时长（单位秒，保留）
+* `activeOpacity`：点击时的透明度（新增）
+* `children`：添加对 `children` 的一个类型检测，必须为 `function`（新增）
+* `onPress`：点击组件的回调（新增，新版本组件将控制权交给了开发人员，通过实例方法按需开启，或是停止倒计时）
+
+以下实例方法将继续保留：
+* `startCountdown`：立即开始倒计时，如果网络错误，将触发 `onNetworkFailed` 回调，可按需进行弹框提示处理
+* `stopCountdown`：立即停止倒计时，将触发 `onDidFinishCountdown` 回调，按需添加后续处理
+
+## 支持的版本
+React Native 版本 | 对应支持的组件版本
 ----------------------- | ------------------------------ 
 0.48.0+                 | v0.3.0+ (NetInfo change -> connectionChange for eventListener)
 < 0.48.0                | v0.2.1
 
-## Preview
+## 预览
 ![demo](https://github.com/ljunb/screenshots/blob/master/rn-countdown.gif)
 
-## Install
+## 安装
 
-Install with npm:
+通过 `npm` 安装:
 ```
 // >= 0.48.0
 npm install rn-countdown --save
@@ -26,7 +48,7 @@ npm install rn-countdown --save
 // < 0.48.0
 npm install rn-countdown@0.2.1 --save 
 ```
-or with yarn:
+或者基于 `yarn` 安装:
 ```
 // >= 0.48.0
 yarn add rn-countdown
@@ -35,7 +57,7 @@ yarn add rn-countdown
 yarn add rn-countdown@0.2.1
 ```
 
-## Usage
+## 使用
 
 ```javascript
 import React, { Component } from 'react'
@@ -186,21 +208,38 @@ const styles = StyleSheet.create({
 })
 ```
 
-## Props
+## 参数说明
 
-Prop              | Type   | Optional | Default      | Description
+名称              | 类型   | 是否可选 | 默认值      | 描述
 ----------------  | ------ | -------- | -----------  | -----------
-style             | ViewPropTypes | Yes      | none  | custom container style
-time              | number | Yes      | 30s          | timer seconds
-activeOpacity     | number | Yes      | 0.75         | button active opacity 
-children          | function | No      | none         | return any react element what you want, eg: `({ status: CountdownStatus, time: number }) => React.Element<any>` <br/> `status`:<br/> - `Idle`: the default status<br/> - `Counting`: the status of counting down<br/> - `Over`: countdown finish
-onPress           | function | Yes | none | invoke when click the countdown
-onNetworkFailed   | function | Yes | none | invoke when the network is failed, so the countdown timer will be invalid in this situation, maybe you will use it to show some message for users
-onDidFinishCountdown| function | Yes | none | invoke when the countdown over
+style             | ViewPropTypes | 是      | 无  | 自定义容器样式，这里应该关注于容器相对于其父组件、兄弟组件的样式，比如：`margin`、`padding` 等，真正业务上的 UI 定制，可在 `children` 中进行定制
+time              | number | 是      | 30s          | 倒计时时长
+activeOpacity     | number | 是      | 0.75         | 按钮交互时的透明度 
+children          | function | 否      | 无         | 一个返回 `React` 元素的函数，该函数接受一个参数，其格式为: `({ status: CountdownStatus, time: number }) => React.Element<any>` <br/> `status`:<br/> - `Idle`: 默认状态<br/> - `Counting`: 正在倒计时<br/> - `Over`: 倒计时结束
+onPress           | function | 是 | 无 | 点击组件时必会触发的回调
+onNetworkFailed   | function | 是 | 无 | 网络出错情况下，点击组件的回调，按需添加弹窗处理
+onDidFinishCountdown| function | 是 | 无 | 倒计时结束回调
 
 
-## Methods
-Method            | Description
+## 方法
+名称            | 描述
 ----------------  | -----------
-startCountdown    | start countdown
-stopCountdown     | stop countdown anytime you want, such as network failed or other situations
+startCountdown    | 立即开始倒计时，网络出错情况下，将触发 `onNetworkFailed` 回调
+stopCountdown     | 立即停止倒计时，将触发 `onDidFinishCountdown` 回调
+
+以上方法皆可通过 `ref` 进行引用触发，比如：`this.countdownRef && this.countdownRef.startCountdown()`。
+
+## 运行示例
+克隆之后，需要先开启 TypeScript 的编译监听：
+```
+// 根目录
+$ npm install
+$ npm start
+```
+
+然后进入到 `example` 目录，开启服务（当然也可以直接通过 Xcode 或是 Android Studio 运行）：
+```
+$ cd example
+$ npm install
+$ npm start
+```
